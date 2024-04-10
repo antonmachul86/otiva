@@ -6,6 +6,6 @@ import lombok.experimental.FieldDefaults;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Ads {
+public class AdsDto {
     Integer count;
 }

@@ -6,7 +6,7 @@ import lombok.experimental.FieldDefaults;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ExtendedAd {
+public class ExtendedAdDto {
     Integer pk;
     String authorFirstName;
     String authorLastName;

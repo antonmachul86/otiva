@@ -6,6 +6,8 @@ import lombok.experimental.FieldDefaults;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Comments {
-    Integer count;
+public class UpdateUserDto {
+    String firstName;
+    String lastName;
+    String phone;
 }
