@@ -6,11 +6,15 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 import ru.skypro.homework.dto.AdDto;
 import ru.skypro.homework.dto.AdsDto;
+import ru.skypro.homework.dto.CommentDto;
 import ru.skypro.homework.service.AdService;
 import ru.skypro.homework.service.CommentService;
 
@@ -67,5 +71,25 @@ public class AdController {
                                        Authentication authentication) throws IOException {
         adService.addAd(properties, image, authentication);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+    @Operation(
+            tags = "Комментарии",
+            summary = "Получение коммнтариев объявления, найденного по переданному идентификатору",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Объявления с переданным идентификатором не существует в базе данных",
+                            content = @Content()
+                    )
+            }
+    )
+    @GetMapping("/{id}/comments")
+    public ResponseEntity<CommentDto> addComments(@PathVariable("id") Integer id,
+                                                 Authentication authentication){
+        try {
+            return ResponseEntity.ok(commentService.getCommentsById(id,authentication));
+        }catch (HttpClientErrorException.NotFound e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 }
