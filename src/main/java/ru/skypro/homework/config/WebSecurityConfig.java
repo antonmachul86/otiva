@@ -22,41 +22,26 @@ public class WebSecurityConfig {
             "/v3/api-docs",
             "/webjars/**",
             "/login",
-            "/register"
+            "/register",
+            "/ads"
     };
 
     @Bean
-    public InMemoryUserDetailsManager userDetailsService(PasswordEncoder passwordEncoder) {
-        UserDetails user =
-                User.builder()
-                        .username("user@gmail.com")
-                        .password("password")
-                        .passwordEncoder(passwordEncoder::encode)
-                        .roles(RoleDto.USER.name())
-                        .build();
-        return new InMemoryUserDetailsManager(user);
-    }
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf()
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity
+                .csrf()
                 .disable()
-                .authorizeHttpRequests(
-                        authorization ->
-                                authorization
-                                        .mvcMatchers(AUTH_WHITELIST)
-                                        .permitAll()
-                                        .mvcMatchers("/ads/**", "/users/**")
-                                        .authenticated())
+                .authorizeHttpRequests(autorization -> autorization.mvcMatchers(AUTH_WHITELIST)
+                        .permitAll()
+                        .mvcMatchers("/adc/**", "users/**")
+                        .authenticated())
                 .cors()
                 .and()
                 .httpBasic(withDefaults());
-        return http.build();
+        return httpSecurity.build();
     }
-
     @Bean
-    public PasswordEncoder passwordEncoder() {
+    public PasswordEncoder passwordEncoder () {
         return new BCryptPasswordEncoder();
     }
-
 }
