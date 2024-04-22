@@ -8,15 +8,21 @@ import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Component;
 import ru.skypro.homework.constant.Role;
 import ru.skypro.homework.dto.RegisterDto;
+import ru.skypro.homework.exception.UserNotFoundException;
 import ru.skypro.homework.model.User;
 import ru.skypro.homework.repository.UserRepository;
 
 @Component
 @RequiredArgsConstructor
-public class UserDetailsManagerImp implements UserDetailsManager {
+public class UserDetailsManagerImpl implements UserDetailsManager {
     private final UserRepository userRepository;
     private final PasswordEncoder encoder;
-
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return userRepository.findByEmail(username)
+                .map(UserDetailsImpl::new)
+                .orElseThrow(UserNotFoundException::new);
+    }
 
     @Override
     public void createUser(UserDetails userDetails) {
@@ -60,10 +66,5 @@ public class UserDetailsManagerImp implements UserDetailsManager {
         return userRepository.existByEmail(username);
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByEmail(username)
-                .map(UserDetailsImpl::new)
-                .orElseThrow(UserNotFoundException::new);
-    }
+
 }
