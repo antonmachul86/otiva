@@ -200,7 +200,9 @@ public class AdController {
             }
     )
     @PatchMapping("/{id}")
-    public ResponseEntity<AdDto> updadeAds(@PathVariable("id") Integer id, Authentication authentication) {
+    public ResponseEntity<AdDto> updateAds(@PathVariable("id") Integer id,
+                                           @RequestBody CreateOrUpdateAdDto ad,
+                                           Authentication authentication) {
         try {
             return ResponseEntity.ok(adService.updateAds(id, ad, authentication));
         } catch (HttpClientErrorException.NotFound e) {
@@ -249,6 +251,8 @@ public class AdController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
+
+
 
     @Operation(
             tags = "Комментарии",
