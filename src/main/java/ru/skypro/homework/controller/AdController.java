@@ -89,10 +89,10 @@ public class AdController {
             }
     )
     @GetMapping("/{id}/comments")
-    public ResponseEntity<CommentDto> addComments(@PathVariable("id") Integer id,
+    public ResponseEntity<CommentsDto> getComments(@PathVariable("id") Integer id,
                                                   Authentication authentication) {
         try {
-            return ResponseEntity.ok(commentService.getCommentsById(id, authentication));
+            return ResponseEntity.ok(commentService.getCommentsByAdId(id, authentication));
         } catch (HttpClientErrorException.NotFound e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }

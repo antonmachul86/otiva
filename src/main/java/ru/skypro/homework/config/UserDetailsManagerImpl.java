@@ -8,6 +8,7 @@ import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Component;
 import ru.skypro.homework.constant.Role;
 import ru.skypro.homework.dto.RegisterDto;
+import ru.skypro.homework.exception.PasswordsNotMatchException;
 import ru.skypro.homework.exception.UserNotFoundException;
 import ru.skypro.homework.model.User;
 import ru.skypro.homework.repository.UserRepository;
@@ -15,8 +16,10 @@ import ru.skypro.homework.repository.UserRepository;
 @Component
 @RequiredArgsConstructor
 public class UserDetailsManagerImpl implements UserDetailsManager {
+
     private final UserRepository userRepository;
     private final PasswordEncoder encoder;
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByEmail(username)
@@ -34,7 +37,6 @@ public class UserDetailsManagerImpl implements UserDetailsManager {
 
     }
 
-    @Override
     public void createUser(RegisterDto registerDto) {
         User user = new User();
         user.setPassword(encoder.encode(registerDto.getPassword()));
@@ -47,17 +49,16 @@ public class UserDetailsManagerImpl implements UserDetailsManager {
     }
 
     @Override
-    public void deleteUser(UserDetails user) {
-        throw new UnsupportedOperationException();
+    public void changePassword(String oldPassword, String newPassword) {
+
     }
 
-    @Override
     public void changePassword(String oldPassword, String newPassword, User user) {
         if (encoder.matches(oldPassword, user.getPassword())) {
             user.setPassword(encoder.encode(newPassword));
             userRepository.save(user);
-        }else {
-            throw new PasswordsNotMuchException();
+        } else {
+            throw new PasswordsNotMatchException();
         }
     }
 
@@ -66,5 +67,13 @@ public class UserDetailsManagerImpl implements UserDetailsManager {
         return userRepository.existByEmail(username);
     }
 
+    @Override
+    public void updateUser(UserDetails user) {
 
+    }
+
+    @Override
+    public void deleteUser(String username) {
+
+    }
 }

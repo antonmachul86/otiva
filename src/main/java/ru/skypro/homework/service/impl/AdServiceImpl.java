@@ -29,7 +29,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static ru.skypro.homework.dto.mapper.AdMapper.*;
-
+import static ru.skypro.homework.service.impl.ValidationService.*;
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -110,7 +110,7 @@ public class AdServiceImpl implements AdService {
         Ad deletedAd = adRepository.findById(id).orElseThrow(AdNotFoundException::new);
         Image deletedImage = imageService.getById(deletedAd.getImage().getId());
         String deletedAdAuthorName = deletedAd.getAuthor().getEmail();
-        if(isAdmin(authentication)||isOvner(authentication, deletedAdAuthorName)){
+        if(isAdmin(authentication)||isOwner(authentication, deletedAdAuthorName)){
             adRepository.delete(deletedAd);
             imageService.deleteImage(deletedImage);
         }else {
@@ -156,9 +156,26 @@ public class AdServiceImpl implements AdService {
      */
     @Override
     public AdsDto getMyAds(Authentication authentication) {
-        return null;
+        Integer myId = userService.findByEmail(authentication.getName()).getId();
+        List<AdDto> allMyAds = adRepository.findAll()
+                .stream()
+                .filter(ad -> ad.getAuthor().getId().equals(myId))
+                .map(AdMapper::mapIntoAdDto)
+                .collect(Collectors.toList());
+        return new AdsDto(allMyAds);
     }
 
+    /**
+     * Метод обновляет картинку объявления полученную в формте {@link MultipartFile}. <br>
+     * {@link AdRepository#findById(Object)}
+     * {@link AdRepository#save(Object)}
+     * {@link ImageService#deleteImage(Image)}
+     * {@link ImageService#saveToDataBase(MultipartFile)}
+     *
+     * @param id             идентификатор объявления
+     * @param image          новая картинка
+     * @param authentication
+     */
     @Override
     public void updateImage(Integer id, MultipartFile image, Authentication authentication) {
 

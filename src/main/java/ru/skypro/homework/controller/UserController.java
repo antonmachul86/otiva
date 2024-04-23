@@ -26,6 +26,7 @@ import java.io.IOException;
 @RequestMapping("/users")
 public class UserController {
     private final UserService userService;
+
     @Operation(
             tags = "Пользователи",
             summary = "Обновление пароля автоматизированного пользователя",
@@ -48,35 +49,40 @@ public class UserController {
             }
     )
     @PostMapping("/set_password")
-    public ResponseEntity<?> setPassword (@RequestBody NewPasswordDTO newPasswordDTO, Authentication authentication){
+    public ResponseEntity<?> setPassword(@RequestBody NewPasswordDTO newPasswordDTO, Authentication authentication) {
         try {
             userService.setPassword(newPasswordDTO, authentication);
             return ResponseEntity.ok().build();
-        }catch (HttpClientErrorException.Forbidden e){
+        } catch (HttpClientErrorException.Forbidden e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
     }
+
     @Operation(
             tags = "Пользователи",
             summary = "Получение информации об авторизированном пользователе",
-            responses = @ApiResponse(
-                    responseCode = "200",
-                    description = "Информация об авторизированном пользователе",
-                    content = @Content(
-                            mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = UserDto.class)
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Информация об авторизированном пользователе",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = UserDto.class)
+                            )
                     ),
                     @ApiResponse(
                             responseCode = "401",
                             description = "Пользователь не авторизован",
                             content = @Content()
                     )
-            )
+            }
     )
+
     @GetMapping("/me")
-    public ResponseEntity<UserDto> getUser(Authentication authentication){
+    public ResponseEntity<UserDto> getUser(Authentication authentication) {
         return ResponseEntity.ok(userService.getUserInfo(authentication));
     }
+
     @Operation(
             tags = "Пользователи",
             summary = "Обновление информации об авторизированном пользователе",
@@ -96,9 +102,9 @@ public class UserController {
                     )
             }
     )
-    @PatchMapping(value = "/me/image",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PatchMapping(value = "/me/image", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Void> updateUserImage(@RequestBody MultipartFile image,
-                                                Authentication authentication) throws IOException{
+                                                Authentication authentication) throws IOException {
         userService.updateUserImage(image, authentication);
         return ResponseEntity.ok().build();
     }
