@@ -33,7 +33,7 @@ public class User {
     private Collection<Ad> ads;
 
     @OneToMany(mappedBy = "author",fetch = FetchType.LAZY)
-    private Collection<Ad> comments;
+    private Collection<Comment> comments;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "image id")

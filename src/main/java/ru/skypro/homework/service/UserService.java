@@ -15,5 +15,5 @@ public interface UserService {
     UpdateUserDto updateUser(UpdateUserDto updateUserDto, Authentication authentication);
     void updateUserImage(MultipartFile image, Authentication authentication) throws IOException;
     User findByEmail(String email);
-    User creteUser(User user);
+    User createUser(User user);
 }
