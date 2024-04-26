@@ -12,7 +12,7 @@ import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
-public class ImageServiceImpl extends ImageService {
+public class ImageServiceImpl implements ImageService {
     private final ImageRepository imageRepository;
 
     /**
@@ -35,11 +35,20 @@ public class ImageServiceImpl extends ImageService {
      */
     @Override
     public Image saveToDataBase(MultipartFile multipartFile) throws IOException {
-        return null;
+        Image image = new Image();
+        image.setData(multipartFile.getBytes());
+        image.setFileSize(multipartFile.getSize());
+        image.setMediaType(multipartFile.getContentType());
+        return imageRepository.save(image);
     }
 
+    /**
+     * Метод удаляет картинку из базы данных. <br>
+     * {@link ImageRepository#delete(Object)}
+     * @param image картинка для удаления
+     */
     @Override
     public void deleteImage(Image image) {
-
+        imageRepository.delete(image);
     }
 }
