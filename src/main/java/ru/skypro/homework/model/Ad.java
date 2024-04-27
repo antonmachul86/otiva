@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-
 import java.util.List;
 import java.util.Objects;
 
@@ -40,8 +39,7 @@ public class Ad {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Ad ad = (Ad) o;
-        return Objects.equals(id, ad.id)
-                && Objects.equals(price, ad.price)
+        return Objects.equals(id, ad.id) && Objects.equals(price, ad.price)
                 && Objects.equals(title, ad.title)
                 && Objects.equals(description, ad.description)
                 && Objects.equals(imageUrl, ad.imageUrl)

@@ -33,13 +33,12 @@ public class AuthController {
                             content = @Content()
                     ),
                     @ApiResponse(
-                            responseCode = "200",
+                            responseCode = "401",
                             description = "Пользователь не авторизован",
                             content = @Content()
                     )
             }
     )
-
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDto loginDto) {
         if (authService.login(loginDto.getUsername(), loginDto.getPassword())) {
@@ -48,20 +47,26 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
+
     @Operation(
             tags = "Регистрация",
-            summary =  "Регистрация пользователя",
+            summary = "Регистрация пользователя",
             responses = {
                     @ApiResponse(
                             responseCode = "201",
                             description = "Пользователь создан",
                             content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Запрос к серверу содержит синтаксическую ошибку",
+                            content = @Content()
                     )
             }
     )
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterDto registerDTO) {
-        if (authService.register(registerDTO)) {
+    public ResponseEntity<?> register(@RequestBody RegisterDto registerDto) {
+        if (authService.register(registerDto)) {
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();

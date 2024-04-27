@@ -69,11 +69,12 @@ public class UserDetailsManagerImpl implements UserDetailsManager {
 
     @Override
     public void updateUser(UserDetails user) {
+        throw new UnsupportedOperationException();
 
     }
 
     @Override
     public void deleteUser(String username) {
-
+        throw new UnsupportedOperationException();
     }
 }

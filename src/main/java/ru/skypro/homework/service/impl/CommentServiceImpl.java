@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.skypro.homework.dto.CommentDto;
 import ru.skypro.homework.dto.CommentsDto;
 import ru.skypro.homework.dto.CreateOrUpdateAdDto;
+import ru.skypro.homework.dto.CreateOrUpdateCommentDto;
 import ru.skypro.homework.dto.mapper.CommentMapper;
 import ru.skypro.homework.exception.AccessDeniedException;
 import ru.skypro.homework.exception.CommentNotFoundException;
@@ -58,7 +59,7 @@ public class CommentServiceImpl implements CommentService {
      * @return комментарий в формате {@link CommentDto}
      */
     @Override
-    public CommentDto addComment(Integer id, Authentication authentication, CreateOrUpdateAdDto newComment) {
+    public CommentDto addComment(Integer id, Authentication authentication, CreateOrUpdateCommentDto newComment) {
         if (authentication.isAuthenticated()) {
             Ad adForComment = adService.getById(id);
             User author = userService.findByEmail(authentication.getName());
@@ -118,7 +119,7 @@ public class CommentServiceImpl implements CommentService {
      * @return обновленный комментарий в формате {@link CommentDto}
      */
     @Override
-    public CommentDto updateComment(Integer adId, Integer commentId, CreateOrUpdateAdDto comment, Authentication authentication) {
+    public CommentDto updateComment(Integer adId, Integer commentId, CreateOrUpdateCommentDto comment, Authentication authentication) {
         Comment commentToUpdate = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);
         Ad adToUpdate = adService.getById(adId);
         String commentAuthorName = commentToUpdate.getAuthor().getEmail();

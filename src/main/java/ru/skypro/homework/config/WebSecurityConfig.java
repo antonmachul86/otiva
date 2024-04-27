@@ -23,21 +23,24 @@ public class WebSecurityConfig {
     };
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity
-                .csrf()
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.csrf()
                 .disable()
-                .authorizeHttpRequests(autorization -> autorization.mvcMatchers(AUTH_WHITELIST)
-                        .permitAll()
-                        .mvcMatchers("/adc/**", "users/**")
-                        .authenticated())
+                .authorizeHttpRequests(
+                        authorization ->
+                                authorization
+                                        .mvcMatchers(AUTH_WHITELIST)
+                                        .permitAll()
+                                        .mvcMatchers("/ads/**", "/users/**")
+                                        .authenticated())
                 .cors()
                 .and()
                 .httpBasic(withDefaults());
-        return httpSecurity.build();
+        return http.build();
     }
+
     @Bean
-    public PasswordEncoder passwordEncoder () {
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 }

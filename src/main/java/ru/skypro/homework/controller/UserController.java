@@ -13,7 +13,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MultipartFile;
-import ru.skypro.homework.dto.NewPasswordDTO;
+import ru.skypro.homework.dto.NewPasswordDto;
+import ru.skypro.homework.dto.UpdateUserDto;
 import ru.skypro.homework.dto.UserDto;
 import ru.skypro.homework.service.UserService;
 
@@ -29,11 +30,11 @@ public class UserController {
 
     @Operation(
             tags = "Пользователи",
-            summary = "Обновление пароля автоматизированного пользователя",
+            summary = "Обновление пароля авторизированного пользователя",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Пароль одновлён",
+                            description = "Пароль обновлен",
                             content = @Content()
                     ),
                     @ApiResponse(
@@ -49,9 +50,10 @@ public class UserController {
             }
     )
     @PostMapping("/set_password")
-    public ResponseEntity<?> setPassword(@RequestBody NewPasswordDTO newPasswordDTO, Authentication authentication) {
+    public ResponseEntity<?> setPassword(@RequestBody NewPasswordDto newPass,
+                                         Authentication authentication) {
         try {
-            userService.setPassword(newPasswordDTO, authentication);
+            userService.setPassword(newPass, authentication);
             return ResponseEntity.ok().build();
         } catch (HttpClientErrorException.Forbidden e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -60,7 +62,7 @@ public class UserController {
 
     @Operation(
             tags = "Пользователи",
-            summary = "Получение информации об авторизированном пользователе",
+            summary = "Получение информации об авторизованном пользователе",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
@@ -77,7 +79,6 @@ public class UserController {
                     )
             }
     )
-
     @GetMapping("/me")
     public ResponseEntity<UserDto> getUser(Authentication authentication) {
         return ResponseEntity.ok(userService.getUserInfo(authentication));
@@ -85,15 +86,37 @@ public class UserController {
 
     @Operation(
             tags = "Пользователи",
-            summary = "Обновление информации об авторизированном пользователе",
+            summary = "Обновление информации об авторизованном пользователе",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Информация об авторизированном пользователе",
+                            description = "Информация об авторизированном пользователе обновлена",
                             content = @Content(
                                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                                     schema = @Schema(implementation = UserDto.class)
                             )
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Пользователь не авторизован",
+                            content = @Content()
+                    )
+            }
+    )
+    @PatchMapping("/me")
+    public ResponseEntity<UpdateUserDto> updateUser(@RequestBody UpdateUserDto updateUserDto,
+                                                    Authentication authentication) {
+        return ResponseEntity.ok(userService.updateUser(updateUserDto, authentication));
+    }
+
+    @Operation(
+            tags = "Пользователи",
+            summary = "Обновление аватара авторизованного пользователя",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Аватар обновлен",
+                            content = @Content()
                     ),
                     @ApiResponse(
                             responseCode = "401",

@@ -6,10 +6,10 @@ import ru.skypro.homework.model.Comment;
 
 @Component
 public class CommentMapper {
-    public static CommentDto mapIntoCommentDto(Comment entity){
+    public static CommentDto mapIntoCommentDto(Comment entity) {
         CommentDto dto = new CommentDto();
         dto.setAuthor(entity.getAuthor().getId());
-        if(entity.getAuthor().getImageUrl()!=null){
+        if (entity.getAuthor().getImageUrl() != null) {
             dto.setAuthorImage(entity.getAuthor().getImageUrl());
         }
         dto.setAuthorFirstName(entity.getAuthor().getFirstName());

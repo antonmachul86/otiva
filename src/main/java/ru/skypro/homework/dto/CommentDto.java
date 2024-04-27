@@ -14,6 +14,4 @@ public class CommentDto {
     private Long createdAt;
     private Integer pk;
     private String text;
-
-
 }

@@ -5,7 +5,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.config.UserDetailsManagerImpl;
-import ru.skypro.homework.dto.NewPasswordDTO;
+import ru.skypro.homework.dto.NewPasswordDto;
 import ru.skypro.homework.dto.UpdateUserDto;
 import ru.skypro.homework.dto.UserDto;
 import ru.skypro.homework.dto.mapper.UserMapper;
@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
      * @param authentication
      */
     @Override
-    public void setPassword(NewPasswordDTO newPasswordDTO, Authentication authentication) {
+    public void setPassword(NewPasswordDto newPasswordDTO, Authentication authentication) {
         User user = userRepository.findByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
         String oldPassword = newPasswordDTO.getCurrentPassword();
         String newPassword = newPasswordDTO.getNewPassword();

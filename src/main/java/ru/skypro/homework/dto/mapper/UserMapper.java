@@ -7,7 +7,7 @@ import ru.skypro.homework.model.User;
 
 @Service
 public class UserMapper {
-    public static UserDto mapIntoUserDto(User entity){
+    public static UserDto mapIntoUserDto(User entity) {
         UserDto dto = new UserDto();
         dto.setId(entity.getId());
         dto.setEmail(entity.getEmail());
@@ -18,7 +18,8 @@ public class UserMapper {
         dto.setImage(entity.getImageUrl());
         return dto;
     }
-    public static UpdateUserDto mapIntoUpdateUserDto(User entity){
+
+    public static UpdateUserDto mapIntoUpdateUserDto(User entity) {
         UpdateUserDto dto = new UpdateUserDto();
         dto.setFirstName(entity.getFirstName());
         dto.setLastName(entity.getLastName());

@@ -1,6 +1,5 @@
 package ru.skypro.homework.model;
 
-import liquibase.pro.packaged.E;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,9 +20,11 @@ public class Comment {
     private Integer id;
     private String text;
     private Long createdAt;
-@ManyToOne
-@JoinColumn(name = "author_id")
-private User author;
+
+    @ManyToOne
+    @JoinColumn(name = "author_id")
+    private User author;
+
     @ManyToOne
     @JoinColumn(name = "ad_id")
     private Ad ad;

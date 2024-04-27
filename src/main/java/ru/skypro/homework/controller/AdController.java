@@ -4,10 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import liquibase.pro.packaged.P;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.bytebuddy.implementation.Implementation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +17,6 @@ import ru.skypro.homework.dto.*;
 import ru.skypro.homework.service.AdService;
 import ru.skypro.homework.service.CommentService;
 
-import javax.swing.text.html.parser.Entity;
 import java.io.IOException;
 
 @Slf4j
@@ -79,8 +76,21 @@ public class AdController {
 
     @Operation(
             tags = "Комментарии",
-            summary = "Получение коммнтариев объявления, найденного по переданному идентификатору",
+            summary = "Получение комментариев объявления, найденного по переданному идентификатору",
             responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Коллекция всех комментариев объявления",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = CommentsDto.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Пользователь не авторизован",
+                            content = @Content()
+                    ),
                     @ApiResponse(
                             responseCode = "404",
                             description = "Объявления с переданным идентификатором не существует в базе данных",
@@ -90,7 +100,7 @@ public class AdController {
     )
     @GetMapping("/{id}/comments")
     public ResponseEntity<CommentsDto> getComments(@PathVariable("id") Integer id,
-                                                  Authentication authentication) {
+                                                   Authentication authentication) {
         try {
             return ResponseEntity.ok(commentService.getCommentsByAdId(id, authentication));
         } catch (HttpClientErrorException.NotFound e) {
@@ -100,11 +110,24 @@ public class AdController {
 
     @Operation(
             tags = "Комментарии",
-            summary = "Добавление комментария к объявлению, найденного по идентефикатору",
+            summary = "Добавление комментария к объявлению, найденному по переданному идентификатору",
             responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Комментарий добавлен",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = CommentDto.class)
+                            )
+                    ),
                     @ApiResponse(
                             responseCode = "401",
                             description = "Пользователь не авторизован",
+                            content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Объявления с переданным идентификатором не существует в базе данных",
                             content = @Content()
                     )
             }
@@ -112,7 +135,7 @@ public class AdController {
     @PostMapping("/{id}/comments")
     public ResponseEntity<CommentDto> addComment(@PathVariable("id") Integer id,
                                                  Authentication authentication,
-                                                 @RequestBody CreateOrUpdateAdDto newComment) {
+                                                 @RequestBody CreateOrUpdateCommentDto newComment) {
         try {
             return ResponseEntity.ok(commentService.addComment(id, authentication, newComment));
         } catch (HttpClientErrorException.NotFound e) {
@@ -122,7 +145,7 @@ public class AdController {
 
     @Operation(
             tags = "Объявления",
-            summary = "Получение информации об объявлении по переданному идентификатору",
+            summary = "Получение информации об объявлении, найденному по переданному идентификатору",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
@@ -134,12 +157,12 @@ public class AdController {
                     ),
                     @ApiResponse(
                             responseCode = "401",
-                            description = "Пользователь не найден",
+                            description = "Пользователь не авторизован",
                             content = @Content()
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "Объявления с переданными идентификаторами не существуют в БД",
+                            description = "Объявления с переданным идентификатором не существует в базе данных",
                             content = @Content()
                     )
             }
@@ -151,7 +174,7 @@ public class AdController {
 
     @Operation(
             tags = "Объявления",
-            summary = "Удаление объявления по переданому идентификатору",
+            summary = "Удаление объявления, найденному по переданному идентификатору",
             responses = {
                     @ApiResponse(
                             responseCode = "204",
@@ -160,7 +183,7 @@ public class AdController {
                     ),
                     @ApiResponse(
                             responseCode = "401",
-                            description = "Пользователь не авторизирован",
+                            description = "Пользователь не авторизован",
                             content = @Content()
                     ),
                     @ApiResponse(
@@ -170,13 +193,13 @@ public class AdController {
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "Объявления с переданным идентификатором не существует",
-                            content = @Content
+                            description = "Объявления с переданным идентификатором не существует в базе данных",
+                            content = @Content()
                     )
             }
     )
     @DeleteMapping("/{id}")
-    ResponseEntity<Void> removeAd(@PathVariable("id") Integer id, Authentication authentication) {
+    public ResponseEntity<Void> removeAd(@PathVariable("id") Integer id, Authentication authentication) {
         try {
             adService.removeAd(id, authentication);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
@@ -187,22 +210,35 @@ public class AdController {
 
     @Operation(
             tags = "Объявления",
-            summary = "Обновлеине информации об объявлении, найденному по переданному идентификатору",
+            summary = "Обновление информации об объявлении, найденному по переданному идентификатору",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
                             description = "Информация об объявлении обновлена",
                             content = @Content(
                                     mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = AdDto.class)
-                            )
+                                    schema = @Schema(implementation = AdDto.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Пользователь не авторизован",
+                            content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = "Нет доступа к операции",
+                            content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Объявления с переданным идентификатором не существует в базе данных",
+                            content = @Content()
                     )
             }
     )
     @PatchMapping("/{id}")
     public ResponseEntity<AdDto> updateAds(@PathVariable("id") Integer id,
-                                           @RequestBody CreateOrUpdateAdDto ad,
-                                           Authentication authentication) {
+                                           @RequestBody CreateOrUpdateAdDto ad, Authentication authentication) {
         try {
             return ResponseEntity.ok(adService.updateAds(id, ad, authentication));
         } catch (HttpClientErrorException.NotFound e) {
@@ -217,7 +253,7 @@ public class AdController {
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Комментарий удалён",
+                            description = "Комментарий удален",
                             content = @Content()
                     ),
                     @ApiResponse(
@@ -235,8 +271,7 @@ public class AdController {
                             description = "Объявления/комментария с переданным идентификатором не существует в базе данных",
                             content = @Content(
                                     mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = CommentDto.class)
-                            )
+                                    schema = @Schema(implementation = CommentDto.class))
                     )
             }
     )
@@ -252,8 +287,6 @@ public class AdController {
         }
     }
 
-
-
     @Operation(
             tags = "Комментарии",
             summary = "Обновление комментария (найденного по переданному идентификатору) " +
@@ -261,7 +294,7 @@ public class AdController {
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Комментарий обновлён",
+                            description = "Комментарий обновлен",
                             content = @Content(
                                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                                     schema = @Schema(implementation = CommentDto.class)
@@ -284,24 +317,25 @@ public class AdController {
                     )
             }
     )
-    @PostMapping("/{adId}/comments{commentId}")
-    public ResponseEntity<CommentDto> updateComment(@PathVariable("adId")Integer adId,
-                                                    @PathVariable("commentId")Integer commentId,
+    @PatchMapping("/{adId}/comments/{commentId}")
+    public ResponseEntity<CommentDto> updateComment(@PathVariable("adId") Integer adId,
+                                                    @PathVariable("commentId") Integer commentId,
                                                     Authentication authentication,
-                                                    @RequestBody CreateOrUpdateAdDto comment){
+                                                    @RequestBody CreateOrUpdateCommentDto comment) {
         try {
-            return ResponseEntity.ok(commentService.updateComment(adId, commentId, comment,authentication));
-        }catch (HttpClientErrorException.NotFound e){
+            return ResponseEntity.ok(commentService.updateComment(adId, commentId, comment, authentication));
+        } catch (HttpClientErrorException.NotFound e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
+
     @Operation(
             tags = "Объявления",
-            summary = "Получение всех объявлений авторизированного пользователя",
+            summary = "Получение всех объявлений авторизованного пользователя",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Коллекция объявлений авторизированного пользователя",
+                            description = "Коллекция объявлений авторизованного пользователя",
                             content = @Content(
                                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                                     schema = @Schema(implementation = AdsDto.class)
@@ -315,12 +349,13 @@ public class AdController {
             }
     )
     @GetMapping("/me")
-    public AdsDto getAdsMe(Authentication authentication){
+    public AdsDto getAdsMe(Authentication authentication) {
         return adService.getMyAds(authentication);
     }
+
     @Operation(
             tags = "Объявления",
-            summary = "Обновление картинки объявления, найденного по переданому идентификатору",
+            summary = "Обновление картинки объявления, найденного по переданному идентификатору",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
@@ -344,16 +379,15 @@ public class AdController {
                     )
             }
     )
-    @PatchMapping(value = "/{id}/image",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PatchMapping(value = "/{id}/image", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Void> updateImage(@PathVariable("id") Integer id,
                                             @RequestBody MultipartFile image,
-                                            Authentication authentication)throws IOException{
+                                            Authentication authentication) throws IOException {
         try {
-            adService.updateImage(id,image,authentication);
+            adService.updateImage(id, image, authentication);
             return ResponseEntity.ok().build();
-        }catch (HttpClientErrorException.NotFound e){
+        } catch (HttpClientErrorException.NotFound e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
-
 }

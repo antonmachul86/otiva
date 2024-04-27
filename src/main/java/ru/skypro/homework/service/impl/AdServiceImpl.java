@@ -87,7 +87,7 @@ public class AdServiceImpl implements AdService {
     public ExtendedAdDto getAds(Integer id, Authentication authentication) {
         if(authentication.isAuthenticated()){
             Ad ad = adRepository.findById(id).orElseThrow(AdNotFoundException::new);
-            return mapIntoExtendedDto(ad);
+            return mapIntoExtendedAdDto(ad);
         }else {
             throw new UserUnauthorizedException();
         }
