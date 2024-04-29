@@ -6,7 +6,9 @@ import ru.skypro.homework.model.Image;
 import java.io.IOException;
 
 public interface ImageService {
-    Image getById (Integer id);
+    Image getById(Integer id);
+
     Image saveToDataBase(MultipartFile multipartFile) throws IOException;
+
     void deleteImage(Image image);
 }

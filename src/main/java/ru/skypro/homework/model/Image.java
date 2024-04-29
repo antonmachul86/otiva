@@ -28,10 +28,7 @@ public class Image {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Image image = (Image) o;
-        return fileSize == image.fileSize
-                && Objects.equals(id, image.id)
-                && Arrays.equals(data, image.data)
-                && Objects.equals(mediaType, image.mediaType);
+        return fileSize == image.fileSize && Objects.equals(id, image.id) && Arrays.equals(data, image.data) && Objects.equals(mediaType, image.mediaType);
     }
 
     @Override

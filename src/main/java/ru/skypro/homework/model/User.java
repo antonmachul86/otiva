@@ -29,14 +29,14 @@ public class User {
     private Role role;
     private String imageUrl;
 
-    @OneToMany(mappedBy = "author",fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
     private Collection<Ad> ads;
 
-    @OneToMany(mappedBy = "author",fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
     private Collection<Comment> comments;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "image id")
+    @JoinColumn(name = "image_id")
     private Image image;
 
     @Override

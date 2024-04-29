@@ -10,10 +10,15 @@ import ru.skypro.homework.model.User;
 import java.io.IOException;
 
 public interface UserService {
-    void setPassword(NewPasswordDto newPasswordDTO, Authentication authentication);
+    void setPassword(NewPasswordDto newPasswordDto, Authentication authentication);
+
     UserDto getUserInfo(Authentication authentication);
+
     UpdateUserDto updateUser(UpdateUserDto updateUserDto, Authentication authentication);
+
     void updateUserImage(MultipartFile image, Authentication authentication) throws IOException;
+
     User findByEmail(String email);
+
     User createUser(User user);
 }

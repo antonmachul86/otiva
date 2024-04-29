@@ -23,6 +23,7 @@ import java.util.Optional;
 @Service
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
+
     private final UserRepository userRepository;
     private final ImageService imageService;
     private final UserDetailsManagerImpl manager;
@@ -36,17 +37,16 @@ public class UserServiceImpl implements UserService {
      * @param authentication
      */
     @Override
-    public void setPassword(NewPasswordDto newPasswordDTO, Authentication authentication) {
+    public void setPassword(NewPasswordDto newPasswordDto, Authentication authentication) {
         User user = userRepository.findByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
-        String oldPassword = newPasswordDTO.getCurrentPassword();
-        String newPassword = newPasswordDTO.getNewPassword();
+        String oldPassword = newPasswordDto.getCurrentPassword();
+        String newPassword = newPasswordDto.getNewPassword();
         manager.changePassword(oldPassword, newPassword, user);
     }
 
     /**
      * Метод возвращает информацию об авторизированном пользователе. <br>
      * {@link UserRepository#findByEmail(String)}
-     *
      * @param authentication
      * @return сущность пользователя в формате {@link UserDto}
      */
@@ -60,8 +60,7 @@ public class UserServiceImpl implements UserService {
      * Метод обновляет информацию об авторизированном пользователе. <br>
      * {@link UserRepository#findByEmail(String)}
      * {@link UserRepository#save(Object)}
-     *
-     * @param newProperties  новые данные для авторизированного пользователя
+     * @param newProperties новые данные для авторизированного пользователя
      * @param authentication
      * @return обновленного пользователя в формате {@link UserDto}
      */
@@ -71,6 +70,7 @@ public class UserServiceImpl implements UserService {
         Optional.ofNullable(newProperties.getFirstName()).ifPresent(updatedUser::setFirstName);
         Optional.ofNullable(newProperties.getLastName()).ifPresent(updatedUser::setLastName);
         Optional.ofNullable(newProperties.getPhone()).ifPresent(updatedUser::setPhoneNumber);
+        userRepository.save(updatedUser);
         return UserMapper.mapIntoUpdateUserDto(updatedUser);
     }
 
@@ -80,8 +80,7 @@ public class UserServiceImpl implements UserService {
      * {@link UserRepository#save(Object)}
      * {@link ImageService#saveToDataBase(MultipartFile)}
      * {@link ImageService#deleteImage(Image)}
-     *
-     * @param image          новая картинка
+     * @param image новая картинка
      * @param authentication
      */
     @Override
@@ -90,13 +89,13 @@ public class UserServiceImpl implements UserService {
             throw new InvalidMediaTypeException();
         }
         User user = userRepository.findByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
-        Image userImage = user.getImage();
+        Image usersImage = user.getImage();
         Image newImage = imageService.saveToDataBase(image);
-        if(user.getImage()!=null){
-            imageService.deleteImage(userImage);
+        if (user.getImage() != null) {
+            imageService.deleteImage(usersImage);
         }
         user.setImage(newImage);
-        user.setImageUrl("/images"+newImage.getId());
+        user.setImageUrl("/images/" + newImage.getId());
         userRepository.save(user);
     }
 
@@ -108,7 +107,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public User findByEmail(String email) {
-       return userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
+        return userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
     }
 
     /**

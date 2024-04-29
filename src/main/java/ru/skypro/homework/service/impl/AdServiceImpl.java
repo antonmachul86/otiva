@@ -1,7 +1,5 @@
 package ru.skypro.homework.service.impl;
 
-
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -19,6 +17,7 @@ import ru.skypro.homework.exception.UserUnauthorizedException;
 import ru.skypro.homework.model.Ad;
 import ru.skypro.homework.model.Image;
 import ru.skypro.homework.repository.AdRepository;
+import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.AdService;
 import ru.skypro.homework.service.ImageService;
 import ru.skypro.homework.service.UserService;
@@ -30,6 +29,7 @@ import java.util.stream.Collectors;
 
 import static ru.skypro.homework.dto.mapper.AdMapper.*;
 import static ru.skypro.homework.service.impl.ValidationService.*;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -46,9 +46,7 @@ public class AdServiceImpl implements AdService {
      */
     @Override
     public AdsDto getAllAds() {
-        List<AdDto> allAds = adRepository
-                .findAll()
-                .stream()
+        List<AdDto> allAds = adRepository.findAll().stream()
                 .map(AdMapper::mapIntoAdDto)
                 .collect(Collectors.toList());
         return new AdsDto(allAds);
@@ -65,8 +63,8 @@ public class AdServiceImpl implements AdService {
      * @return объявление в формате {@link AdDto}
      */
     @Override
-    public AdDto addAd(CreateOrUpdateAdDto properties,
-                       MultipartFile image, Authentication authentication) throws IOException {
+    public AdDto addAd(CreateOrUpdateAdDto properties, MultipartFile image,
+                       Authentication authentication) throws IOException {
         if (!isImage(image)) {
             throw new InvalidMediaTypeException();
         }
@@ -83,12 +81,20 @@ public class AdServiceImpl implements AdService {
         }
     }
 
+    /**
+     * Метод возвращает информацию об объявлении, найденному по переданному идентификатору. <br>
+     * {@link AdRepository#findById(Object)} <br>
+     *
+     * @param id             идентификатор объявления
+     * @param authentication
+     * @return объявление в формате {@link ExtendedAdDto}
+     */
     @Override
     public ExtendedAdDto getAds(Integer id, Authentication authentication) {
-        if(authentication.isAuthenticated()){
+        if (authentication.isAuthenticated()) {
             Ad ad = adRepository.findById(id).orElseThrow(AdNotFoundException::new);
             return mapIntoExtendedAdDto(ad);
-        }else {
+        } else {
             throw new UserUnauthorizedException();
         }
     }
@@ -110,10 +116,10 @@ public class AdServiceImpl implements AdService {
         Ad deletedAd = adRepository.findById(id).orElseThrow(AdNotFoundException::new);
         Image deletedImage = imageService.getById(deletedAd.getImage().getId());
         String deletedAdAuthorName = deletedAd.getAuthor().getEmail();
-        if(isAdmin(authentication)||isOwner(authentication, deletedAdAuthorName)){
+        if (isAdmin(authentication) || isOwner(authentication, deletedAdAuthorName)) {
             adRepository.delete(deletedAd);
             imageService.deleteImage(deletedImage);
-        }else {
+        } else {
             throw new AccessDeniedException();
         }
     }
@@ -135,7 +141,7 @@ public class AdServiceImpl implements AdService {
     public AdDto updateAds(Integer id, CreateOrUpdateAdDto newProperties, Authentication authentication) {
         Ad updatedAd = adRepository.findById(id).orElseThrow(AdNotFoundException::new);
         String updatedAdAuthorName = updatedAd.getAuthor().getEmail();
-        if(isAdmin(authentication) || isOwner (authentication, updatedAdAuthorName)){
+        if (isAdmin(authentication) || isOwner(authentication, updatedAdAuthorName)) {
             Optional.ofNullable(newProperties.getPrice()).ifPresent(updatedAd::setPrice);
             Optional.ofNullable(newProperties.getTitle()).ifPresent(updatedAd::setTitle);
             Optional.ofNullable(newProperties.getDescription()).ifPresent(updatedAd::setDescription);
@@ -157,8 +163,7 @@ public class AdServiceImpl implements AdService {
     @Override
     public AdsDto getMyAds(Authentication authentication) {
         Integer myId = userService.findByEmail(authentication.getName()).getId();
-        List<AdDto> allMyAds = adRepository.findAll()
-                .stream()
+        List<AdDto> allMyAds = adRepository.findAll().stream()
                 .filter(ad -> ad.getAuthor().getId().equals(myId))
                 .map(AdMapper::mapIntoAdDto)
                 .collect(Collectors.toList());
@@ -178,16 +183,47 @@ public class AdServiceImpl implements AdService {
      */
     @Override
     public void updateImage(Integer id, MultipartFile image, Authentication authentication) {
-
+        if (!isImage(image)) {
+            throw new InvalidMediaTypeException();
+        }
+        String adAuthorName = adRepository.findById(id).orElseThrow(AdNotFoundException::new).getAuthor().getEmail();
+        if (isAdmin(authentication) || isOwner(authentication, adAuthorName)) {
+            Ad ad = adRepository.findById(id).orElseThrow(AdNotFoundException::new);
+            try {
+                imageService.deleteImage(ad.getImage());
+                Image newImage = imageService.saveToDataBase(image);
+                ad.setImage(newImage);
+                ad.setImageUrl("/images/" + newImage.getId());
+                adRepository.save(ad);
+            } catch (IOException e) {
+                log.error(e.getMessage());
+            }
+        } else {
+            throw new AccessDeniedException();
+        }
     }
 
+    /**
+     * Метод возвращает объявление, найденное по переданному идентификатору. <br>
+     * {@link AdRepository#findById(Object)}
+     *
+     * @param id идентификатор объявления
+     * @return объявление в формате {@link Ad}
+     */
     @Override
     public Ad getById(Integer id) {
-        return null;
+        return adRepository.findById(id).orElseThrow(AdNotFoundException::new);
     }
 
+    /**
+     * Метод сохраняет полученное объявление в базу данных. <br>
+     * {@link AdRepository#save(Object)}
+     *
+     * @param ad объявление для сохранения
+     * @return объявление в формате {@link Ad}
+     */
     @Override
     public Ad createdAd(Ad ad) {
-        return null;
+        return adRepository.save(ad);
     }
 }

@@ -3,6 +3,7 @@ package ru.skypro.homework.config;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
 import ru.skypro.homework.model.User;
 
 import java.util.Collection;
@@ -10,8 +11,9 @@ import java.util.Collections;
 
 public class UserDetailsImpl implements UserDetails {
     private final User user;
-    public UserDetailsImpl(User user){
-        this.user=user;
+
+    public UserDetailsImpl(User user) {
+        this.user = user;
     }
 
     @Override

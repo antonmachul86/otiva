@@ -34,7 +34,6 @@ public class UserDetailsManagerImpl implements UserDetailsManager {
         user.setPassword(userDetails.getPassword());
         user.setRole(Role.valueOf(userDetails.getAuthorities().iterator().next().getAuthority().substring(5)));
         userRepository.save(user);
-
     }
 
     public void createUser(RegisterDto registerDto) {
@@ -64,17 +63,16 @@ public class UserDetailsManagerImpl implements UserDetailsManager {
 
     @Override
     public boolean userExists(String username) {
-        return userRepository.existByEmail(username);
-    }
-
-    @Override
-    public void updateUser(UserDetails user) {
-        throw new UnsupportedOperationException();
-
+        return userRepository.existsByEmail(username);
     }
 
     @Override
     public void deleteUser(String username) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void updateUser(UserDetails user) {
         throw new UnsupportedOperationException();
     }
 }
