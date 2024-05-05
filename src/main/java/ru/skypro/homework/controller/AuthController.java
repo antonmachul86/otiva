@@ -1,5 +1,8 @@
 package ru.skypro.homework.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -20,18 +23,50 @@ public class AuthController {
 
     private final AuthService authService;
 
+    @Operation(
+            tags = "Авторизация",
+            summary = "Авторизация пользователя",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Пользователь авторизован",
+                            content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Пользователь не авторизован",
+                            content = @Content()
+                    )
+            }
+    )
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginDto login) {
-        if (authService.login(login.getUsername(), login.getPassword())) {
+    public ResponseEntity<?> login(@RequestBody LoginDto loginDto) {
+        if (authService.login(loginDto.getUsername(), loginDto.getPassword())) {
             return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
 
+    @Operation(
+            tags = "Регистрация",
+            summary = "Регистрация пользователя",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Пользователь создан",
+                            content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Запрос к серверу содержит синтаксическую ошибку",
+                            content = @Content()
+                    )
+            }
+    )
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterDto register) {
-        if (authService.register(register)) {
+    public ResponseEntity<?> register(@RequestBody RegisterDto registerDto) {
+        if (authService.register(registerDto)) {
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();

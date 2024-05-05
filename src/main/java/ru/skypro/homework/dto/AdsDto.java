@@ -1,11 +1,18 @@
 package ru.skypro.homework.dto;
 
-import lombok.AccessLevel;
 import lombok.Data;
-import lombok.experimental.FieldDefaults;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@NoArgsConstructor
 public class AdsDto {
-    Integer count;
+    private Integer count;
+    private List<AdDto> results;
+
+    public AdsDto(List<AdDto> results) {
+        this.count = results.size();
+        this.results = results;
+    }
 }
